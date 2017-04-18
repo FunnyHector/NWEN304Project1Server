@@ -31,31 +31,29 @@ let fakeDatabase = {
     {
       id: 2,
       title: "title_2",
-      description: "description_3",
+      description: "description_2",
       isFinished: false
     },
     {
       id: 3,
-      title: "title_3",
-      description: "description_3",
+      title: "item_with_no_description",
       isFinished: false
     },
     {
       id: 4,
-      title: "title_4",
+      title: "item_done",
       description: "description_4",
-      isFinished: false
+      isFinished: true
     },
     {
       id: 5,
-      title: "title_5",
-      description: "description_5",
-      isFinished: false
+      title: "title_done_no_description",
+      isFinished: true
     },
     {
-      id: 6,
-      title: "title_6",
-      description: "description_6",
+      id: 900,
+      title: "title with id 900",
+      description: "description 900",
       isFinished: false
     }],
 
@@ -68,14 +66,16 @@ let fakeDatabase = {
   },
 
   create: function (data) {
-    let maxId = this._maxId();
+    let id = this._maxId() + 1;
 
     this._fakeTable.push({
-      id: maxId + 1,
+      id: id,
       title: data.title,
       description: data.description,
       isFinished: data.isFinished
     });
+
+    return id;
   },
 
   update: function (id, data) {
@@ -83,7 +83,7 @@ let fakeDatabase = {
     let wantedIndex = -1;
 
     for (let i = 0; i < this._fakeTable.length; i++) {
-      if (this._fakeTable[i].id === id) {
+      if (this._fakeTable[i].id == id) {
         wantedIndex = i;
         break;
       }
@@ -91,6 +91,7 @@ let fakeDatabase = {
 
     if (wantedIndex >= 0) {
       this._fakeTable[wantedIndex] = {
+        id: id,
         title: data.title,
         description: data.description,
         isFinished: data.isFinished
@@ -102,9 +103,28 @@ let fakeDatabase = {
     return updated;
   },
 
+  updateIsFinished: function (id, isFinished) {
+    let updated = false;
+    let wantedIndex = -1;
+
+    for (let i = 0; i < this._fakeTable.length; i++) {
+      if (this._fakeTable[i].id == id) {
+        wantedIndex = i;
+        break;
+      }
+    }
+
+    if (wantedIndex >= 0) {
+      this._fakeTable[wantedIndex].isfinished = isFinished;
+      updated = true;
+    }
+
+    return updated;
+  },
+
   find: function (id) {
     for (let row of this._fakeTable) {
-      if (row.id === id) {
+      if (row.id == id) {
         return this._fakeTable[id];
       }
     }
@@ -121,7 +141,7 @@ let fakeDatabase = {
     let wantedIndex = -1;
 
     for (let i = 0; i < this._fakeTable.length; i++) {
-      if (this._fakeTable[i].id === id) {
+      if (this._fakeTable[i].id == id) {
         wantedIndex = i;
         break;
       }
@@ -133,6 +153,10 @@ let fakeDatabase = {
     }
 
     return deleted;
+  },
+
+  size: function () {
+    return this._fakeTable.length;
   }
 };
 
@@ -152,44 +176,71 @@ app.use(express.static('public'));
 
 // the index page
 app.get("/", function (request, respond) {
+  console.log("received a GET '/', displaying the index");
+
   respond.redirect("/index.html");
 });
 
 // the list of all to-do items
 app.get("/todos/", function (request, respond) {
-
+  console.log("received a GET '/todos/', sending all to-do items to the client");
   // query the database to get all items, and send it back
-
+  respond.send(fakeDatabase.findAll());
 });
 
 // get the specified to-do item
 app.get("/todos/:id", function (request, respond) {
   let id = request.params.id;
 
-  // query the database to get the item
+  console.log(`received a GET '/todos/${id}', sending the specified to-do items to the client`);
 
+  // query the database to get the item
+  respond.send(fakeDatabase.find(id));
 });
 
 // create a new to-do item
 app.post("/todos/", function (request, respond) {
-  let title = request.body.title;
-  let description = request.body.description;
-  let isFinished = false;
+  console.log("received a POST '/todos/', creating a new to-do item.");
 
   // query the database to create the item
+  let id = fakeDatabase.create({
+    title: request.body.title,
+    description: request.body.description,
+    isFinished: false
+  });
 
+  // tell the client the id of the newly created to-do item
+  respond.status(200).json({ id: id });
 });
 
 // update a specified to-do item
-app.put("/todos/:id", function (request, respond) {
+app.post("/todos/:id", function (request, respond) {
   let id = request.params.id;
-
-  let title = request.body.title;
-  let description = request.body.description;
-  let isFinished = request.body["is-finished"];  // TODO need to add a hidden field "is-finished" in html
+  let updated;
 
   // query the database to update the item, if it doesn't exist, create one
+  if (request.body.title) {
+    // update all fields
+    updated = fakeDatabase.update(id, {
+      title: request.body.title,
+      description: request.body.description,
+      isFinished: request.body.isFinished
+    });
 
+    console.log(`received a POST '/todos/${id}', updating all fields.`);
+  } else {
+
+    // only update isFinished field
+    updated = fakeDatabase.updateIsFinished(id, request.body.isFinished);
+
+    console.log(`received a POST '/todos/${id}', updating the 'isFinished' field.`);
+  }
+
+  if (updated) {
+    respond.sendStatus(200);
+  } else {
+    respond.sendStatus(404);
+  }
 });
 
 // delete a specified to-do item
@@ -197,9 +248,16 @@ app.delete("/todos/:id", function (request, respond) {
   let id = request.params.id;
 
   // query the database to delete the item
+  let deleted = fakeDatabase.delete(id);
 
+  console.log(`received a DELETE '/todos/${id}', deleting the specified to-do item.`);
+
+  if (deleted) {
+    respond.sendStatus(200);
+  } else {
+    respond.sendStatus(404);
+  }
 });
-
 
 // =================== SERVER START ========================
 
@@ -207,8 +265,5 @@ let server = app.listen(port, function () {
   let host = server.address().address;
   let port = server.address().port;
 
-  console.log('Host: ' + host);
-  console.log('Port: ' + port);
-
-  console.log('Example app listening at http://%s:%s', host, port);
+  console.log("Hector's AWESOME To-do List is listening at http://%s:%s", host, port);
 });
