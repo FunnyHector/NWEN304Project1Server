@@ -1,0 +1,63 @@
+1.REST interface:
+
+
+2.curl test plans:
+
+
+3.Make a fake table in server-side js, as a chunk of variables.
+   when ajax request anything, we look for it from the fake table.
+   when ajax wants to update anything, we update the fake table.
+
+
+
+
+
+4.Make sure the fake table version working.
+
+
+
+
+5.Create a PostgreSQL database, make an easy table
+  table todos:
+    id: int
+    title: string / varchar 255
+    description: string
+    is_finished: boolean / small int (0/1)
+
+
+
+
+6.Make the app to request data from database instead of fake table.
+  No authentication needed in this assignment. No mark for that.
+
+
+
+
+
+
+7. Robust error handling
+
+
+
+
+
+8. put it on Heroku.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+6.
