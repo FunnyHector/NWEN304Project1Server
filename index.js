@@ -1,13 +1,13 @@
 "use strict";
 
 // =================== imports ===================
-let util = require("util");
-let express = require("express");
-let app = express();
-let bodyParser = require("body-parser");
+const util = require("util");
+const express = require("express");
+const app = express();
+const bodyParser = require("body-parser");
 
 // =================== top-level variables ===================
-let port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080;
 
 // =================== fake table ===================
 let fakeDatabase = {
@@ -257,7 +257,7 @@ app.delete("/todos/:id", function (request, respond) {
 
 // =================== SERVER START ========================
 
-let server = app.listen(port, function () {
+const server = app.listen(port, function () {
   let host = server.address().address;
   let port = server.address().port;
 
