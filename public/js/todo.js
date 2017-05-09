@@ -28,9 +28,6 @@ $(document).ready(function () {
         $newTask.children(".description").hide();
 
         // add the task in the list
-        console.log(item.is_finished);
-        console.log(typeof item.is_finished);
-
         if (item.is_finished) {
           $("#completed-list").prepend($newTask);
         } else {
@@ -242,11 +239,7 @@ $(document).ready(function () {
 
       // check whether it's done or not after the drag.
       let isFinishedNew;
-      if ($taskItem.parents("#todo-list").length === 0) {
-        isFinishedNew = true;
-      } else {
-        isFinishedNew = false;
-      }
+      isFinishedNew = $taskItem.parents("#todo-list").length === 0;
 
       $.post(`/todos/${id}`, { is_finished: isFinishedNew }, function (data, status) {
         if (status === "success") {
