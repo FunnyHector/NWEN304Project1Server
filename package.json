@@ -11,6 +11,11 @@
   "dependencies": {
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
-    "pg": "^6.1.5"
+    "pg": "^6.1.5",
+    "pg-pool": "^1.7.1",
+    "url": "^0.11.0"
+  },
+  "engines": {
+    "node": "7.7.4"
   }
 }

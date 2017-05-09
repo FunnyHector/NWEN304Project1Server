@@ -7,7 +7,7 @@ $(document).ready(function () {
       // load all to-do items and make each into a row
       for (let item of data) {
         // make a task row
-        let $newTask = $(`<li class='task-item' id='todo-${item.id}' data-is-finished='${item.isFinished}'></li>`)
+        let $newTask = $(`<li class='task-item' id='todo-${item.id}' data-is-finished='${item.is_finished}'></li>`)
             .append("<span class='done'>%</span>")
             .append(`<span class='title'>${item.title}</span>`)
             .append("<div class='edit-n-delete'></div>");
@@ -28,7 +28,10 @@ $(document).ready(function () {
         $newTask.children(".description").hide();
 
         // add the task in the list
-        if (item.isFinished == "true" || item.isFinished) {
+        console.log(item.is_finished);
+        console.log(typeof item.is_finished);
+
+        if (item.is_finished) {
           $("#completed-list").prepend($newTask);
         } else {
           $("#todo-list").prepend($newTask);
@@ -128,7 +131,7 @@ $(document).ready(function () {
   $("#todo-list").on("click", ".done", function () {
     let $taskItem = $(this).parents("li");
     let id = $taskItem.attr("id").slice(5);
-    let updates = { isFinished: true };
+    let updates = { is_finished: true };
 
     $.post(`/todos/${id}`, updates, function (data, status) {
       if (status === "success") {
@@ -185,7 +188,7 @@ $(document).ready(function () {
           let updates = {
             title: title,
             description: description,
-            isFinished: isFinished
+            is_finished: isFinished
           };
 
           $.post(`/todos/${id}`, updates, function (data, status) {
@@ -245,7 +248,7 @@ $(document).ready(function () {
         isFinishedNew = false;
       }
 
-      $.post(`/todos/${id}`, { isFinished: isFinishedNew }, function (data, status) {
+      $.post(`/todos/${id}`, { is_finished: isFinishedNew }, function (data, status) {
         if (status === "success") {
           $taskItem.attr("data-is-finished", isFinishedNew);
         } else {
