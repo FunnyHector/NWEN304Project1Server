@@ -36,11 +36,6 @@ const config = {
 
 const pool = new Pool(config);
 
-pool.on("error", function (error, client) {
-  client.release();
-  console.error('[ERROR] Unable to connect to database', error.message, error.stack);
-});
-
 // =================== ROUTES ========================
 
 // 1. the index page
@@ -66,6 +61,9 @@ app.get("/todos/", function (request, respond) {
               client.release();
               console.error('[ERROR] Query error', e.message, e.stack);
             });
+      })
+      .catch(error => {
+        console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
 
@@ -88,6 +86,9 @@ app.get("/todos/:id", function (request, respond) {
               client.release();
               console.error('[ERROR] Query error', e.message, e.stack);
             });
+      })
+      .catch(error => {
+        console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
 
@@ -97,7 +98,7 @@ app.post("/todos/", function (request, respond) {
 
   pool.connect()
       .then(client => {
-        client.query(`INSERT INTO todo_items (title, description, is_finished) VALUES ('${request.body.title}', '${request.body.description}', FALSE) RETURNING id;`)
+        client.query("INSERT INTO todo_items (title, description, is_finished) VALUES ($1, $2, FALSE) RETURNING id;", [request.body.title, request.body.description])
             .then(result => {
               client.release();
 
@@ -110,6 +111,9 @@ app.post("/todos/", function (request, respond) {
               client.release();
               console.error('[ERROR] Query error', e.message, e.stack);
             });
+      })
+      .catch(error => {
+        console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
 
@@ -127,7 +131,7 @@ app.post("/todos/:id", function (request, respond) {
 
           let description = request.body.description;
 
-          client.query(`UPDATE todo_items SET title = '${title}', description = '${description}', is_finished = ${is_finished} WHERE id = ${id};`)
+          client.query("UPDATE todo_items SET title = $1, description = $2, is_finished = $3 WHERE id = $4;", [title, description, is_finished, id])
               .then(result => {
                 client.release();
 
@@ -149,7 +153,7 @@ app.post("/todos/:id", function (request, respond) {
         } else {
           console.log(`[Log] Received a POST '/todos/${id}' for updating the 'is_finished' field`);
 
-          client.query(`UPDATE todo_items SET is_finished = ${is_finished} WHERE id = ${id};`)
+          client.query("UPDATE todo_items SET is_finished = $1 WHERE id = $2;", [is_finished, id])
               .then(result => {
                 client.release();
 
@@ -167,6 +171,9 @@ app.post("/todos/:id", function (request, respond) {
                 console.error('[ERROR] Query error', e.message, e.stack);
               });
         }
+      })
+      .catch(error => {
+        console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
 
@@ -178,7 +185,7 @@ app.delete("/todos/:id", function (request, respond) {
 
   pool.connect()
       .then(client => {
-        client.query(`DELETE from todo_items WHERE id = ${id};`)
+        client.query("DELETE from todo_items WHERE id = $1;", [id])
             .then(result => {
               client.release();
 
@@ -194,6 +201,9 @@ app.delete("/todos/:id", function (request, respond) {
               client.release();
               console.error('[ERROR] Query error', e.message, e.stack);
             });
+      })
+      .catch(error => {
+        console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
 
