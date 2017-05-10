@@ -1,51 +1,51 @@
 'use strict';
 
 $(document).ready(function () {
-  // load all existing to-do items from server
-  $.get("/todos/", function (data, status) {
-    if (status === "success") {
-      // load all to-do items and make each into a row
-      for (let item of data) {
-        // make a task row
-        let $newTask = $(`<li class='task-item' id='todo-${item.id}' data-is-finished='${item.is_finished}'></li>`)
-            .append("<span class='done'>%</span>")
-            .append(`<span class='title'>${item.title}</span>`)
-            .append("<div class='edit-n-delete'></div>");
+  // 1. Get all to-do items from server
+  $.get("/todos/")
+      .done(function (jqxhr) {
+        // hide error messsage
+        $(".warning").empty().hide();
 
-        $newTask.children(".edit-n-delete")
-            .append("<span class='edit'>r</span>")
-            .append("<span class='delete'>x</span>");
+        // load all to-do items and make each into a row
+        for (let item of jqxhr) {
+          // make a task row
+          let $newTask = $(`<li class='task-item' id='todo-${item.id}' data-is-finished='${item.is_finished}'></li>`)
+              .append("<span class='done'>%</span>")
+              .append(`<span class='title'>${item.title}</span>`)
+              .append("<div class='edit-n-delete'></div>");
 
-        // if there is a description, enable the toggle button. otherwise disable it.
-        let description = item.description;
-        if (description) {
-          $newTask.children(".edit-n-delete").prepend("<span class='toggle-description'>&gt;</span>");
-        } else {
-          $newTask.children(".edit-n-delete").prepend("<span class='toggle-description-disabled'>&gt;</span>");
+          $newTask.children(".edit-n-delete")
+              .append("<span class='edit'>r</span>")
+              .append("<span class='delete'>x</span>");
+
+          // if there is a description, enable the toggle button. otherwise disable it.
+          let description = item.description;
+          if (description) {
+            $newTask.children(".edit-n-delete").prepend("<span class='toggle-description'>&gt;</span>");
+          } else {
+            $newTask.children(".edit-n-delete").prepend("<span class='toggle-description-disabled'>&gt;</span>");
+          }
+
+          $newTask.append(`<div class='description'><p>${description}</p></div>`);
+          $newTask.children(".description").hide();
+
+          // add the task in the list
+          if (item.is_finished) {
+            $("#completed-list").prepend($newTask);
+          } else {
+            $("#todo-list").prepend($newTask);
+          }
         }
+      })
+      .fail(function (jqxhr) {
+        $(".warning")
+            .empty()
+            .append(`<span>${jqxhr.responseText}</span>`)
+            .show();
+      });
 
-        $newTask.append(`<div class='description'><p>${description}</p></div>`);
-        $newTask.children(".description").hide();
-
-        // add the task in the list
-        if (item.is_finished) {
-          $("#completed-list").prepend($newTask);
-        } else {
-          $("#todo-list").prepend($newTask);
-        }
-      }
-    } else {
-      // TODO: need proper error handling
-      // some debugging logs
-      console.log("failed");
-      console.log(typeof status);
-      console.log(status);
-      console.log(typeof data);
-      console.log(data);
-    }
-  });
-
-  // Make the button for adding a task
+  // 2. Make the button for adding a task
   $("#add-todo").button({
     icons: { primary: "ui-icon-circle-plus" }
   }).click(function () {
@@ -78,42 +78,42 @@ $(document).ready(function () {
             description: description
           };
 
-          $.post("/todos/", todoItem, function (data, status) {
-            if (status === "success") {
-              // make a task row
-              let $newTask = $(`<li class='task-item' id='todo-${data.id}' data-is-finished='false'></li>`)
-                  .append("<span class='done'>%</span>")
-                  .append(`<span class='title'>${title}</span>`)
-                  .append("<div class='edit-n-delete'></div>");
+          $.post("/todos/", todoItem)
+              .done(function (jqxhr) {
+                // hide error messsage
+                $(".warning").empty().hide();
 
-              $newTask.children(".edit-n-delete")
-                  .append("<span class='edit'>r</span>")
-                  .append("<span class='delete'>x</span>");
+                // make a task row
+                let $newTask = $(`<li class='task-item' id='todo-${jqxhr.id}' data-is-finished='false'></li>`)
+                    .append("<span class='done'>%</span>")
+                    .append(`<span class='title'>${title}</span>`)
+                    .append("<div class='edit-n-delete'></div>");
 
-              // if there is a description, enable the toggle button. otherwise disable it.
-              if (description.length > 0) {
-                $newTask.children(".edit-n-delete").prepend("<span class='toggle-description'>&gt;</span>");
-              } else {
-                $newTask.children(".edit-n-delete").prepend("<span class='toggle-description-disabled'>&gt;</span>");
-              }
+                $newTask.children(".edit-n-delete")
+                    .append("<span class='edit'>r</span>")
+                    .append("<span class='delete'>x</span>");
 
-              $newTask.append(`<div class='description'><p>${description}</p></div>`);
-              $newTask.children(".description").hide();
+                // if there is a description, enable the toggle button. otherwise disable it.
+                if (description.length > 0) {
+                  $newTask.children(".edit-n-delete").prepend("<span class='toggle-description'>&gt;</span>");
+                } else {
+                  $newTask.children(".edit-n-delete").prepend("<span class='toggle-description-disabled'>&gt;</span>");
+                }
 
-              // add the task in the list
-              $("#todo-list").prepend($newTask);
-              $newTask.hide().show("clip", 250).effect("highlight", 1000);
+                $newTask.append(`<div class='description'><p>${description}</p></div>`);
+                $newTask.children(".description").hide();
 
-            } else {
-              // TODO: need proper error handling
-              // some debugging logs
-              console.log("failed");
-              console.log(typeof status);
-              console.log(status);
-              console.log(typeof data);
-              console.log(data);
-            }
-          });
+                // add the task in the list
+                $("#todo-list").prepend($newTask);
+                $newTask.hide().show("clip", 250).effect("highlight", 1000);
+
+              })
+              .fail(function (jqxhr) {
+                $(".warning")
+                    .empty()
+                    .append(`<span>${jqxhr.responseText}</span>`)
+                    .show();
+              });
 
           $(this).dialog("close");
         },
@@ -124,30 +124,30 @@ $(document).ready(function () {
     }).dialog("open");
   });
 
-  // add listeners to buttons on to-be-done list
+  // 3. add listeners to buttons on to-be-done list
   $("#todo-list").on("click", ".done", function () {
     let $taskItem = $(this).parents("li");
     let id = $taskItem.attr("id").slice(5);
     let updates = { is_finished: true };
 
-    $.post(`/todos/${id}`, updates, function (data, status) {
-      if (status === "success") {
-        $taskItem.attr("data-is-finished", true).slideUp(250, function () {
-          let $this = $(this);
-          $this.detach();
-          $("#completed-list").prepend($this);
-          $this.slideDown();
+    $.post(`/todos/${id}`, updates)
+        .done(function () {
+          // hide error messsage
+          $(".warning").empty().hide();
+
+          $taskItem.attr("data-is-finished", true).slideUp(250, function () {
+            let $this = $(this);
+            $this.detach();
+            $("#completed-list").prepend($this);
+            $this.slideDown();
+          });
+        })
+        .fail(function (jqxhr) {
+          $(".warning")
+              .empty()
+              .append(`<span>${jqxhr.responseText}</span>`)
+              .show();
         });
-      } else {
-        // TODO: need proper error handling
-        // some debugging logs
-        console.log("failed");
-        console.log(typeof status);
-        console.log(status);
-        console.log(typeof data);
-        console.log(data);
-      }
-    });
 
   }).on("click", ".edit", function () {
     let $taskItem = $(this).parents("li");
@@ -188,35 +188,34 @@ $(document).ready(function () {
             is_finished: isFinished
           };
 
-          $.post(`/todos/${id}`, updates, function (data, status) {
-            if (status === "success") {
-              // update the title
-              $taskItem.children(".title").text(title).effect("highlight", 1000);
+          $.post(`/todos/${id}`, updates)
+              .done(function () {
+                // hide error messsage
+                $(".warning").empty().hide();
 
-              // update the description
-              let $description = $taskItem.children(".description");
-              $description.html(`<p>${description}</p>`);
+                // update the title
+                $taskItem.children(".title").text(title).effect("highlight", 1000);
 
-              // some logic for description toggling
-              if (description.length === 0) {
-                $description.hide();
-                $taskItem.find(".toggle-description").text(">").attr("class", "toggle-description-disabled");
-              } else if (description.length > 0) {
-                $description.slideDown().effect("highlight", 1000);
-                $taskItem.find(".toggle-description").text("/");
-                $taskItem.find(".toggle-description-disabled").text("/").attr("class", "toggle-description");
-              }
+                // update the description
+                let $description = $taskItem.children(".description");
+                $description.html(`<p>${description}</p>`);
 
-            } else {
-              // TODO: need proper error handling
-              // some debugging logs
-              console.log("failed");
-              console.log(typeof status);
-              console.log(status);
-              console.log(typeof data);
-              console.log(data);
-            }
-          });
+                // some logic for description toggling
+                if (description.length === 0) {
+                  $description.hide();
+                  $taskItem.find(".toggle-description").text(">").attr("class", "toggle-description-disabled");
+                } else if (description.length > 0) {
+                  $description.slideDown().effect("highlight", 1000);
+                  $taskItem.find(".toggle-description").text("/");
+                  $taskItem.find(".toggle-description-disabled").text("/").attr("class", "toggle-description");
+                }
+              })
+              .fail(function (jqxhr) {
+                $(".warning")
+                    .empty()
+                    .append(`<span>${jqxhr.responseText}</span>`)
+                    .show();
+              });
 
           $(this).dialog("close");
         },
@@ -227,7 +226,7 @@ $(document).ready(function () {
     }).dialog("open");
   });
 
-  // make all tasks sortable
+  // 4. make all tasks sortable
   $(".sortable").sortable({
     connectWith: ".sortable",
     cursor: "pointer",
@@ -241,19 +240,19 @@ $(document).ready(function () {
       let isFinishedNew;
       isFinishedNew = $taskItem.parents("#todo-list").length === 0;
 
-      $.post(`/todos/${id}`, { is_finished: isFinishedNew }, function (data, status) {
-        if (status === "success") {
-          $taskItem.attr("data-is-finished", isFinishedNew);
-        } else {
-          // TODO: need proper error handling
-          // some debugging logs
-          console.log("failed");
-          console.log(typeof status);
-          console.log(status);
-          console.log(typeof data);
-          console.log(data);
-        }
-      });
+      $.post(`/todos/${id}`, { is_finished: isFinishedNew })
+          .done(function () {
+            // hide error messsage
+            $(".warning").empty().hide();
+
+            $taskItem.attr("data-is-finished", isFinishedNew);
+          })
+          .fail(function (jqxhr) {
+            $(".warning")
+                .empty()
+                .append(`<span>${jqxhr.responseText}</span>`)
+                .show();
+          });
     }
 
   }).on("click", ".toggle-description", function () {
@@ -285,24 +284,21 @@ $(document).ready(function () {
             "Confirm": function () {
               let id = $taskItem.attr("id").slice(5);
 
-              $.ajax({
-                url: `/todos/${id}`,
-                type: 'DELETE',
-                success: function () {
-                  $taskItem.effect("puff", function () {
-                    $(this).remove();
+              $.ajax({ url: `/todos/${id}`, type: 'DELETE', })
+                  .done(function () {
+                    // hide error messsage
+                    $(".warning").empty().hide();
+
+                    $taskItem.effect("puff", function () {
+                      $(this).remove();
+                    });
+                  })
+                  .fail(function (jqxhr) {
+                    $(".warning")
+                        .empty()
+                        .append(`<span>${jqxhr.responseText}</span>`)
+                        .show();
                   });
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                  // TODO: need proper error handling
-                  // some debugging logs
-                  console.log("failed");
-                  console.log(XMLHttpRequest.status);
-                  console.log(XMLHttpRequest.readyState);
-                  console.log(textStatus);
-                  console.log(errorThrown);
-                }
-              });
 
               $(this).dialog("close");
             },

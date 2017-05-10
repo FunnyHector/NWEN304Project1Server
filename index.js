@@ -59,10 +59,12 @@ app.get("/todos/", function (request, respond) {
             })
             .catch(e => {
               client.release();
+              respond.status(500).send("Database error occurred, please refresh or contact hectorcaesar@hotmail.com.");
               console.error('[ERROR] Query error', e.message, e.stack);
             });
       })
       .catch(error => {
+        respond.status(503).send("Database unavailable, please try again.");
         console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
@@ -84,10 +86,12 @@ app.get("/todos/:id", function (request, respond) {
             })
             .catch(e => {
               client.release();
+              respond.status(500).send("Database error occurred, please refresh or contact hectorcaesar@hotmail.com.");
               console.error('[ERROR] Query error', e.message, e.stack);
             });
       })
       .catch(error => {
+        respond.status(503).send("Database unavailable, please try again.");
         console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
@@ -109,10 +113,12 @@ app.post("/todos/", function (request, respond) {
             })
             .catch(e => {
               client.release();
+              respond.status(500).send("Database error occurred, please refresh or contact hectorcaesar@hotmail.com.");
               console.error('[ERROR] Query error', e.message, e.stack);
             });
       })
       .catch(error => {
+        respond.status(503).send("Database unavailable, please try again.");
         console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
@@ -139,13 +145,14 @@ app.post("/todos/:id", function (request, respond) {
                   respond.sendStatus(200);
                   console.log(`[Log] Updated item (id: ${id})`);
                 } else {
-                  respond.sendStatus(404);
+                  respond.status(404).send("Cannot find item, please try again.");
                   console.error(`[ERROR] Failed to updated a new to-do item (id: ${id})`);
                 }
 
               })
               .catch(e => {
                 client.release();
+                respond.status(500).send("Database error occurred, please refresh or contact hectorcaesar@hotmail.com.");
                 console.error('[ERROR] Query error', e.message, e.stack);
               });
 
@@ -161,18 +168,20 @@ app.post("/todos/:id", function (request, respond) {
                   respond.sendStatus(200);
                   console.log(`[Log] Updated item (id: ${id})`);
                 } else {
-                  respond.sendStatus(404);
+                  respond.status(404).send("Cannot find item, please try again.");
                   console.error(`[ERROR] Failed to updated a new to-do item (id: ${id})`);
                 }
 
               })
               .catch(e => {
                 client.release();
+                respond.status(500).send("Database error occurred, please refresh or contact hectorcaesar@hotmail.com.");
                 console.error('[ERROR] Query error', e.message, e.stack);
               });
         }
       })
       .catch(error => {
+        respond.status(503).send("Database unavailable, please try again.");
         console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });
@@ -193,16 +202,18 @@ app.delete("/todos/:id", function (request, respond) {
                 respond.sendStatus(200);
                 console.log(`[Log] Deleted the row (id: ${id})`);
               } else {
-                respond.sendStatus(404);
+                respond.status(404).send("Cannot find item, please try again.");
                 console.error(`[ERROR] Failed to delete the row (id: ${id})`);
               }
             })
             .catch(e => {
               client.release();
+              respond.status(500).send("Database error occurred, please refresh or contact hectorcaesar@hotmail.com.");
               console.error('[ERROR] Query error', e.message, e.stack);
             });
       })
       .catch(error => {
+        respond.status(503).send("Database unavailable, please try again.");
         console.error('[ERROR] Unable to connect to database', error.message, error.stack);
       });
 });

@@ -220,3 +220,17 @@ label {
 .ui-effects-transfer {
   border: 1px dotted black;
 }
+
+.warning {
+  font-size: 1.5em;
+  padding-top: .2em;
+  padding-bottom: .2em;
+  text-align: center;
+  color: #D8000C;
+  background-color: #FFBABA;
+  border-radius: .2em;
+}
+
+.warning:empty {
+  display: none;
+}
