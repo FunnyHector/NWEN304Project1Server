@@ -218,6 +218,12 @@ app.delete("/todos/:id", function (request, respond) {
       });
 });
 
+// 7. 404 page
+app.get('*', function(request, respond){
+  console.log("[Log] Someone is poking around.");
+  respond.redirect("/404.html");
+});
+
 // =================== SERVER START ========================
 
 const server = app.listen(port, function () {

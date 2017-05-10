@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hector's AWESOME To-do List</title>
+  <link href="css/todo.css" rel="stylesheet">
+  <link href="css/jquery-ui.min.css" rel="stylesheet">
+  <script src="js/jquery-3.1.1.min.js"></script>
+  <script src="js/jquery-ui.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("#back").button({
+        icons: { primary: "ui-icon-circle-arrow-w" }
+      }).click(function () {
+        window.location.href = '/';
+      });
+    });
+  </script>
+</head>
+
+<body>
+<div class="container">
+  <div id="page-title">
+    <h1>
+      Hector's AWESOME To-do List
+      <span>
+        <button id="back">
+          Back
+        </button>
+      </span>
+    </h1>
+  </div>
+
+  <h2>
+    DID YOU JUST F*CKING LOSE ME???
+  </h2>
+
+</div>
+</body>
+</html>
