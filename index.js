@@ -10,7 +10,8 @@ const app = express();
 
 // =================== top-level variables ===================
 const port = process.env.PORT || 8080;
-const databaseUrl = process.env.DATABASE_URL || "postgresql://fangzhao:457866@localhost:5432/nwen304";
+const localDBUrl = "postgresql://fangzhao:457866@localhost:5432/nwen304";
+const databaseUrl = process.env.DATABASE_URL || localDBUrl;
 
 // =================== middle-ware ===================
 // parse application/x-www-form-urlencoded
